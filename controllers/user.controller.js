@@ -7,6 +7,8 @@ const jwt = require("jsonwebtoken");
 const uploadImage = require("../utils/upload");
 const sendOtp = require("../services/sendOtp.service.js");
 const otpModel = require("../models/otp.model.js");
+const redis = require("../db/redis.js");
+const locationQueue = require("../queues/location.queue.js");
 
 
 
@@ -247,26 +249,34 @@ class UserController {
 
     static updateLocatoin = async (req, res) => {
         const { lng, lat } = req.body;
-        const userData = req.user; //From middleware;
+        const userData = req.user;
 
         if (!lng || !lat) {
-            throw new ApiError(500, "Please provide longitude and latitude")
+            throw new ApiError(400, "Please provide longitude and latitude")
         }
 
-        const update = await userModel.updateOne({ _id: userData.id }, {
-            $set: {
-                current_location: {
-                    type: "Point",
-                    coordinates: [lng, lat]
-                }
+        await redis.set(
+            `user:${userData.id}:location`,
+            JSON.stringify({ lng, lat })
+        );
+
+
+        // Push to queue; `job-name, data, options`
+        locationQueue.add(
+            "user-location",
+            {
+                id: userData.id
+            },
+            {
+                jobId: `location-${userData.id}`,
+                delay: 10000,
+                removeOnComplete: true,
+                removeOnFail: true
             }
-        })
+        )
 
-        if(update.modifiedCount === 0){
-            throw new ApiError(500, "Location not update");
-        }
 
-        return res.status(200).json({msg: "Location update success"})
+        return res.status(200).json({ msg: "Location update success" })
     }
 
 }

@@ -1,5 +1,5 @@
-const userController = require("../controllers/user.controller");
 const router = require("express").Router();
+const userController = require("../controllers/user.controller");
 const authMiddleware = require("../middleware/auth.middleware.js")
 
 
@@ -16,7 +16,7 @@ router
     .post(userController.verifyOTP)
 
 router
-    .route("/get-users/:id")
+    .route("/get/:id")
     .get(authMiddleware, userController.getUser)
 
 router
