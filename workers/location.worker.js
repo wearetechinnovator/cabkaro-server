@@ -1,6 +1,7 @@
+const redis = require("../db/redis");
 const { Worker } = require("bullmq");
 const userModel = require('../models/user.model');
-const redis = require("../db/redis");
+const driverModel = require("../models/driver.model");
 
 
 new Worker("locationQueue", async (job) => {
@@ -18,8 +19,19 @@ new Worker("locationQueue", async (job) => {
             }
         })
     }
-    
-    else if (job.name === "driver-location") {
 
+    else if (job.name === "driver-location") {
+        const { id } = job.data;
+        const raw = await redis.get(`driver:${id}:location`);
+        const data = JSON.parse(raw);
+
+        await driverModel.updateOne({ _id: id }, {
+            $set: {
+                current_location: {
+                    type: "Point",
+                    coordinates: [data.lng, data.lat]
+                }
+            }
+        })
     }
 }, { connection: redis });

@@ -8,7 +8,8 @@ const rideSchema = new mongoose.Schema({
     },
     driver: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "driver"
+        ref: "driver",
+        default: null
     },
     pickup_location: {
         type: {
@@ -28,6 +29,8 @@ const rideSchema = new mongoose.Schema({
         coordinates: [Number], // [long, lat]
         index: '2dsphere'
     },
+    pickup_date: Date,
+    pickup_time: Date,
     pickup_address: String,
     drop_address: String,
     distance_km: Number,

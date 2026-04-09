@@ -13,7 +13,7 @@ const locationQueue = require("../queues/location.queue.js");
 
 
 class UserController {
-    static PROFILE_UPLOAD_DIR = path.join(__dirname, "..", "uploads");
+    static UPLOAD_DIR = path.join(__dirname, "..", "uploads");
 
 
     static register = async (req, res) => {
@@ -129,7 +129,7 @@ class UserController {
 
         // Delete previous file
         try {
-            const FILE = path.join(this.PROFILE_UPLOAD_DIR, user.profile_pic);
+            const FILE = path.join(this.UPLOAD_DIR, user.profile_pic);
             await fs.unlink(FILE);
         } catch (error) {
             throw new ApiError(500, "File upload fail");
@@ -176,7 +176,7 @@ class UserController {
 
         //Send OTP;
         const otp = await sendOtp({ phone });
-        console.log("[OTP]:", otp);
+        console.log("User [OTP]:", otp);
 
         return res.status(200).json({ msg: "Login success" });
     }

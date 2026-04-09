@@ -6,13 +6,20 @@ const driverSchema = new mongoose.Schema({
     phone: Number,
     password: String,
     gender: String,
-    driving_license: String,
-    adhar_number: Number,
-    profile_pic: String,
+    driving_license_number: String,
     vehicle_number: String,
-    vehicle_img: String,
-    is_available: Boolean,
+    adhar_number: Number,
+    profile_img: String,
+
+    adhar_img: String,
+    driving_license_img: String,
     vehicle_proof: String,
+    vehicle_img: String,
+    
+    is_available: {
+        type: Boolean,
+        index: true
+    },
     current_location: {
         type: {
             type: String,
@@ -21,7 +28,7 @@ const driverSchema = new mongoose.Schema({
         },
         coordinates: {
             type: [Number], // [long, lat]
-            required: true
+            default: [0, 0]
         }
     },
     service_radius_km: Number,
