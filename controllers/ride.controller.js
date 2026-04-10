@@ -1,8 +1,8 @@
-const userModel = require("../models/user.model");
 const driverModel = require("../models/driver.model.js");
 const ApiError = require("../utils/ApiError.js");
 const redis = require("../db/redis.js");
 const rideModel = require("../models/ride.model.js");
+const {socketIO} = require("../sockets/index.js");
 
 
 
@@ -54,9 +54,11 @@ class RideController {
             member: newRide._id.toString(),
         });
 
+        // Send real-time update to drivers about new ride;
+        // socketIO.emit("new-ride", newRide);
+
 
         return res.status(201).json({ data: newRide });
-
     }
 
 

@@ -18,7 +18,6 @@ const rideSchema = new mongoose.Schema({
             default: "Point"
         },
         coordinates: [Number], // [long, lat]
-        index: '2dsphere'
     },
     drop_location: {
         type: {
@@ -27,7 +26,6 @@ const rideSchema = new mongoose.Schema({
             default: "Point"
         },
         coordinates: [Number], // [long, lat]
-        index: '2dsphere'
     },
     pickup_date: Date,
     pickup_time: Date,
@@ -46,6 +44,8 @@ const rideSchema = new mongoose.Schema({
     },
 }, { timestamps: true });
 
+
+rideSchema.index({pickup_location: '2dsphere', drop_location: '2dsphere'});
 const rideModel = mongoose.model('ride', rideSchema);
 
 module.exports = rideModel;

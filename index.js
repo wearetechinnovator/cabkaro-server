@@ -2,30 +2,21 @@
 //|:::::::: JAY JAGANNATH 0!!0 ::::::::::|
 //|======================================|
 require("dotenv").config();
-const express = require("express");
+const { createServer } = require("http");
 const connection = require("./db/connection")
-const errorMiddleware = require("./middleware/error.middleware.js");
-const routes = require("./routes/index.route");
+const app = require("./app");
+const { initializeSockets } = require("./sockets/index.js");
 
-const app = express();
+
 const PORT = process.env.PORT || 8080;
-
-
-
-app.use(express.json({ limit: "500mb" }));
-app.use(express.urlencoded({ extended: true }))
-
-app.use("/api/v1", routes);
-// For testing purpose
-app.get("/", (req, res)=>{res.send("Hello world");})
-app.use(errorMiddleware);
-
+const httpServer = createServer(app);
+initializeSockets(httpServer);
 
 
 
 connection().then(con => {
     if (con) {
-        app.listen(PORT, () => {
+        httpServer.listen(PORT, () => {
             console.log("[*] Database Run")
             console.log("[*] Server Running on " + PORT);
         })
@@ -35,3 +26,5 @@ connection().then(con => {
 }).catch(err => {
     console.log("[*] Something went wrong: ", err)
 })
+
+module.exports = httpServer;

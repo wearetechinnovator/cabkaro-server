@@ -365,7 +365,7 @@ class Driver {
         const { is_available } = req.body;
         const driverData = req.user;
 
-        if (!is_available || typeof is_available !== "boolean") {
+        if (is_available === null || is_available === undefined || typeof is_available !== "boolean") {
             throw new ApiError(400, "is_available field must be boolean");
         }
 
