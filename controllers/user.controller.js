@@ -19,7 +19,7 @@ class UserController {
     static register = async (req, res) => {
         const { name, phone, password, gender, profile_pic } = req.body;
 
-        if ([name, phone, password, gender].some(field => !field)) {
+        if ([name, phone, password].some(field => !field)) {
             throw new ApiError(400, "All fields are required");
         }
 
