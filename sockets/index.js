@@ -1,6 +1,9 @@
 const { Server } = require("socket.io");
 const nearRideHandler = require("./nearRide.js");
+const createRide = require("./createRide.js");
 const socketAuth = require("../middleware/socketAuth.middleware.js");
+const driverConnect = require("./driverConnect.js");
+const userConnect = require("./userConnect.js");
 
 
 let io;
@@ -8,7 +11,7 @@ const initializeSockets = (httpServer) => {
     io = new Server(httpServer, {
         cors: {
             origin: "*",
-            methods: ["GET", "POST"]
+            methods: ["GET", "POST", "PATCH"]
         }
     });
 
@@ -16,16 +19,13 @@ const initializeSockets = (httpServer) => {
 
 
     io.on("connection", (socket) => {
-        console.log("Connected:", socket.id);
+        // Connect user and driver;
+        driverConnect(socket, io);
+        userConnect(socket, io);
 
-
-        // Handle near ride requests from drivers
+        // Operations;
+        createRide(socket, io);
         nearRideHandler(socket, io);
-
-
-        socket.on("disconnect", () => {
-            console.log("Client disconnected: ", socket.id);
-        })
     });
 };
 

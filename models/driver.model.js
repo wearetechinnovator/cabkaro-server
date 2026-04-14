@@ -32,6 +32,7 @@ const driverSchema = new mongoose.Schema({
         }
     },
     service_radius_km: Number,
+    socket_id: String
 }, { timestamps: true })
 
 driverSchema.index({current_location: '2dsphere'})

@@ -23,6 +23,7 @@ const userSchema = new mongoose.Schema({
             default: [0, 0]
         }
     },
+    socket_id: String
 }, { timestamps: true })
 
 userSchema.index({ current_location: "2dsphere" });

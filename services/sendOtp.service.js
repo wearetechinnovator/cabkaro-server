@@ -7,7 +7,7 @@ const sendOtp = async ({ phone }) => {
         OTP += Math.ceil(Math.random() * 9)
     }
 
-    // Delete Previous OTPS
+    // Delete Previous OTPS;
     await otpModel.deleteMany({ phone });
 
     // Save in DB;

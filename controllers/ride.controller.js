@@ -54,9 +54,6 @@ class RideController {
             member: newRide._id.toString(),
         });
 
-        // Send real-time update to drivers about new ride;
-        // socketIO.emit("new-ride", newRide);
-
 
         return res.status(201).json({ data: newRide });
     }

@@ -178,7 +178,7 @@ class UserController {
         const otp = await sendOtp({ phone });
         console.log("User [OTP]:", otp);
 
-        return res.status(200).json({ msg: "Login success" });
+        return res.status(200).json({ msg: "Login success", OTP: otp });
     }
 
 

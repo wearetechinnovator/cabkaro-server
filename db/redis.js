@@ -1,6 +1,6 @@
 const IoRedis = require('ioredis');
 
-const HOST = process.env.REDIS_URL;
+const HOST = process.env.REDIS_HOST;
 const PORT = process.env.REDIS_PORT;
 
 const redis = new IoRedis({

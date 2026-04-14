@@ -1,24 +1,32 @@
 const driverModel = require("../models/driver.model.js");
+const SockKeys = require("../constants/socket.js");
+
 
 
 const nearRideHandler = (socket, io) => {
-    socket.on("near-ride-request", async (data) => {
-        const { lat, lng } = data;
+    socket.on(SockKeys.NEAR_RIDE_REQ, async (data) => {
+        const {
+            pickup_location, drop_location, price, pickup_date, pickup_time
+        } = data;
 
-        if (lat === null || lng === null) {
-            socket.emit("near-ride-response", { err: "Latitude and longitude are required" });
+        if (
+            pickup_location.lat == null ||
+            pickup_location.lng == null ||
+            drop_location.lat == null ||
+            drop_location.lng == null
+        ) {
+            socket.emit(SockKeys.NEAR_RIDE_RES, { err: "Latitude and longitude are required" });
             return;
         }
 
         // First get driver service radius
         const driver = await driverModel.findById(driverData._id);
         if (!driver) {
-            socket.emit("near-ride-response", { err: "Driver not found" });
+            socket.emit(SockKeys.NEAR_RIDE_RES, { err: "Driver not found" });
             return;
         }
+
         const serviceRadius = driver.service_radius_km;
-
-
 
     })
 }
