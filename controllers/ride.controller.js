@@ -2,7 +2,7 @@ const driverModel = require("../models/driver.model.js");
 const ApiError = require("../utils/ApiError.js");
 const redis = require("../db/redis.js");
 const rideModel = require("../models/ride.model.js");
-const {socketIO} = require("../sockets/index.js");
+const { socketIO } = require("../sockets/index.js");
 
 
 
@@ -28,8 +28,9 @@ class RideController {
 
 
         // Insert into DB
+        console.log(userData)
         const newRide = await rideModel.create({
-            user: userData._id,
+            user: userData.id,
             pickup_location: {
                 type: "Point",
                 coordinates: [pickup_location.lng, pickup_location.lat]
@@ -48,11 +49,12 @@ class RideController {
         }
 
         // insert in Redis;
-        await redis.geoAdd("rides", {
-            longitude: pickup_location.lng,
-            latitude: pickup_location.lat,
-            member: newRide._id.toString(),
-        });
+        await redis.geoadd(
+            "rides",
+            Number(pickup_location.lng),
+            Number(pickup_location.lat),
+            newRide._id.toString()
+        );
 
 
         return res.status(201).json({ data: newRide });
@@ -89,6 +91,7 @@ class RideController {
             ["WITHDIST", "COUNT", 20]
         );
 
+        console.log(rides);
     }
 
 

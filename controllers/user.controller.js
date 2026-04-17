@@ -55,17 +55,17 @@ class UserController {
 
 
     static update = async (req, res) => {
-        const { name, gender, profile_pic } = req.body;
+        const { name, gender, phone } = req.body;
         const userData = req.user;
 
-        if ([name, gender].some(field => !field)) {
+        if ([name, phone].some(field => !field)) {
             throw new ApiError(400, "All fields are required");
         }
 
         // update
         const update = await userModel.updateOne({ _id: userData.id }, {
             $set: {
-                name, gender,
+                name, gender, phone
             }
         })
 
@@ -178,7 +178,7 @@ class UserController {
         const otp = await sendOtp({ phone });
         console.log("User [OTP]:", otp);
 
-        return res.status(200).json({ msg: "Login success", OTP: otp });
+        return res.status(200).json({ msg: "Login success", OTP: otp }); // Remove OTP on Production
     }
 
 

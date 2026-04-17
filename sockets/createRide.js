@@ -42,7 +42,7 @@ const createRide = (socket, io) => {
 
             // Notify each relevant driver
             relevantDrivers.forEach(driver => {
-                io.to(driver.socket_id).emit(SockKeys.NEW_RIDE_REQUEST, {
+                io.to(driver.socket_id).emit(SockKeys.NEAR_RIDE_REQ, {
                     pickup_location,
                     drop_location,
                     price,

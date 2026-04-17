@@ -28,7 +28,7 @@ const rideSchema = new mongoose.Schema({
         coordinates: [Number], // [long, lat]
     },
     pickup_date: Date,
-    pickup_time: Date,
+    pickup_time: String,
     pickup_address: String,
     drop_address: String,
     distance_km: Number,
@@ -38,7 +38,8 @@ const rideSchema = new mongoose.Schema({
         enum: [
             'accepted',
             'completed',
-            'cancelled'
+            'cancelled',
+            'searching'
         ],
         default: 'searching'
     },

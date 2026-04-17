@@ -1,5 +1,4 @@
 const { Server } = require("socket.io");
-const nearRideHandler = require("./nearRide.js");
 const createRide = require("./createRide.js");
 const socketAuth = require("../middleware/socketAuth.middleware.js");
 const driverConnect = require("./driverConnect.js");
@@ -15,7 +14,7 @@ const initializeSockets = (httpServer) => {
         }
     });
 
-    io.use(socketAuth);
+    io.use(socketAuth); // Check Auth;
 
 
     io.on("connection", (socket) => {
@@ -25,7 +24,6 @@ const initializeSockets = (httpServer) => {
 
         // Operations;
         createRide(socket, io);
-        nearRideHandler(socket, io);
     });
 };
 
