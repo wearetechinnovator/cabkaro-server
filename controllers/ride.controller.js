@@ -28,7 +28,6 @@ class RideController {
 
 
         // Insert into DB
-        console.log(userData)
         const newRide = await rideModel.create({
             user: userData.id,
             pickup_location: {
@@ -58,6 +57,75 @@ class RideController {
 
 
         return res.status(201).json({ data: newRide });
+    }
+
+
+    static editRide = async (req, res) => {
+        const {
+            pickup_location, drop_location, price, pickup_date, pickup_time, 
+            rideId
+        } = req.body;
+        const userData = req.user;
+
+        if (!pickup_location || !drop_location || !price || !pickup_date || !pickup_time || !rideId) {
+            throw new ApiError(400, "All fields are required");
+        }
+
+        if (
+            pickup_location.lat == null ||
+            pickup_location.lng == null ||
+            drop_location.lat == null ||
+            drop_location.lng == null
+        ) {
+            throw new ApiError(400, "Invalid pickup or drop location");
+        }
+
+        // Ride Exis or not;
+        const ride = await rideModel.findOne({ _id: rideId, user: userData.id });
+        if (!ride) {
+            throw new ApiError(404, "Ride not found or unauthorized");
+        }
+
+        // Check Ride Edit or not
+        const isRideEdit = await rideModel.findOne({ _id: rideId, status: "searching" });
+        if (!isRideEdit) {
+            throw new ApiError(404, "This ride can't edit now");
+        }
+
+
+        // Edit in DB
+        const editR = await rideModel.updateOne({ _id: rideId }, {
+            $set: {
+                pickup_location: {
+                    type: "Point",
+                    coordinates: [pickup_location.lng, pickup_location.lat]
+                },
+                drop_location: {
+                    type: "Point",
+                    coordinates: [drop_location.lng, drop_location.lat]
+                },
+                price,
+                pickup_date,
+                pickup_time
+            }
+        })
+
+        if (editR.modifiedCount === 0) {
+            throw new ApiError(500, "Ride not update");
+        }
+
+
+        await redis.geoadd(
+            "rides",
+            Number(pickup_location.lng),
+            Number(pickup_location.lat),
+            rideId.toString()
+        );
+
+        return res.status(200).json({
+            msg: "Ride updated successfully"
+        });
+
     }
 
 
@@ -92,6 +160,7 @@ class RideController {
         );
 
         console.log(rides);
+
     }
 
 

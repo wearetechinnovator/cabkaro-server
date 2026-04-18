@@ -9,6 +9,10 @@ router
     .post(authMiddleware, rideController.createRide);
 
 router
+    .route("/edit-ride")
+    .patch(authMiddleware, rideController.editRide);
+
+router
     .route("/nearest-ride")
     .get(authMiddleware, rideController.getNearestRide);
 
