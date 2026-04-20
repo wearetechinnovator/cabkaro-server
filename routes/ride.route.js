@@ -13,8 +13,16 @@ router
     .patch(authMiddleware, rideController.editRide);
 
 router
-    .route("/nearest-ride")
+    .route("/nearest-rides")
     .get(authMiddleware, rideController.getNearestRide);
+
+router
+    .route("/create-ride-nego")
+    .post(authMiddleware, rideController.createRideNego);
+
+router
+    .route("/accept-ride")
+    .post(authMiddleware, rideController.accepetRideByUser);
 
 
 module.exports = router;
