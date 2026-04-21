@@ -3,11 +3,15 @@ const router = require('express').Router();
 const userRoute = require("./user.route");
 const driverRoute = require("./driver.route");
 const rideRoute = require("./ride.route");
+const vendorRoute = require("./vendor.route");
+const vehicleRoute = require("./vehicle.route");
 
 
 router.use("/user", userRoute);
 router.use("/driver", driverRoute);
 router.use("/ride", rideRoute);
+router.use("/vendor", vendorRoute);
+router.use("/vehicles", vehicleRoute);
 
 
 router.use("/auth/check-token", (req, res) => {

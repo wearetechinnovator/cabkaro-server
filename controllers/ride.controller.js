@@ -1,4 +1,4 @@
-const driverModel = require("../models/driver.model.js");
+const driverModel = require("../models/vendor.model.js");
 const ApiError = require("../utils/ApiError.js");
 const redis = require("../db/redis.js");
 const rideModel = require("../models/ride.model.js");
@@ -10,7 +10,8 @@ const rideNegotiationModel = require("../models/rideNego.model.js");
 class RideController {
     static createRide = async (req, res) => {
         const {
-            pickup_location, drop_location, price, pickup_date, pickup_time
+            pickup_location, drop_location, price, pickup_date, pickup_time,
+            pickup_city, drop_city
         } = req.body;
         const userData = req.user;
 
@@ -41,7 +42,9 @@ class RideController {
             },
             price,
             pickup_date,
-            pickup_time
+            pickup_time,
+            pickup_city,
+            drop_city
         })
 
         if (!newRide) {

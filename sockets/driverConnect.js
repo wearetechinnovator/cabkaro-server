@@ -1,4 +1,4 @@
-const driverModel = require("../models/driver.model");
+const driverModel = require("../models/vendor.model.js");
 const SockKeys = require("../constants/socket.js");
 
 

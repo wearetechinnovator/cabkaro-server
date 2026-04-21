@@ -4,28 +4,8 @@ const authMiddleware = require("../middleware/auth.middleware.js");
 
 
 router
-    .route("/register")
-    .post(driverController.register)
-
-router
-    .route("/login")
-    .post(driverController.login)
-
-router
-    .route("/verify-otp")
-    .post(driverController.verifyOTP)
-
-router
     .route("/get/:id")
-    .get(authMiddleware, driverController.getDriver)
-
-router
-    .route("/update")
-    .patch(authMiddleware, driverController.update)
-
-router
-    .route("/change-password")
-    .patch(authMiddleware, driverController.changePassword)
+    .get(authMiddleware, driverController.getDriverById)
 
 router
     .route("/update-profile-img")
@@ -36,8 +16,16 @@ router
     .patch(authMiddleware, driverController.updateLocatoin)
 
 router
-    .route("/toggle-availability")
-    .patch(authMiddleware, driverController.toggleAvailability)
+    .route("/update-driver")
+    .post(authMiddleware, driverController.addDriver); // Add and Update Driver;
+
+router
+    .route("/delete/:id")
+    .delete(authMiddleware, driverController.deleteDriverById) // Delete Driver by ID
+
+router
+    .route("/vendor/get")
+    .get(authMiddleware, driverController.getVendorDriver) // Get all drivers of a vendor
 
 
 

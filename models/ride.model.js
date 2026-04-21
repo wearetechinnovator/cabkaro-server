@@ -11,6 +11,8 @@ const rideSchema = new mongoose.Schema({
         ref: "driver",
         default: null
     },
+    pickup_city: String,
+    drop_city: String,
     pickup_location: {
         type: {
             type: String,
