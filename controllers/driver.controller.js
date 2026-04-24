@@ -51,6 +51,7 @@ class Driver {
 
     }
 
+    
     static getDriverById = async (req, res) => {
         const driverId = req.params.id;
 
@@ -196,8 +197,6 @@ class Driver {
 
     }
 
-
-    
 
 }
 
