@@ -16,7 +16,7 @@ initializeSockets(httpServer);
 
 connection().then(con => {
     if (con) {
-        httpServer.listen(PORT, () => {
+        httpServer.listen(PORT, "0.0.0.0", () => {
             console.log("[*] Database Run")
             console.log("[*] Server Running on " + PORT);
         })
@@ -26,5 +26,3 @@ connection().then(con => {
 }).catch(err => {
     console.log("[*] Something went wrong: ", err)
 })
-
-module.exports = httpServer;

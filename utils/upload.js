@@ -3,7 +3,7 @@ const path = require("path");
 
 
 async function uploadImage(base64Image) {
-    try{
+    try {
         const matches = base64Image.match(/^data:(.+);base64,(.+)$/);
         if (!matches) {
             throw new Error("Invalid base64 image format");
@@ -19,7 +19,8 @@ async function uploadImage(base64Image) {
 
         return { success: true, message: "Image uploaded successfully", fileName };
 
-    }catch(err){
+    } catch (err) {
+        console.log(err);
         return { success: false, message: "Failed to upload image", error: err.message };
     }
 }

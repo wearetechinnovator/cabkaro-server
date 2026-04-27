@@ -9,20 +9,28 @@ const vehicleSchema = new mongoose.Schema({
     },
     vehicle_number: {
         type: String,
-        required: true,
+        required: [true, "Enter vehicle number"],
         unique: true
+
     },
     vechicle_img: String,
     is_ac: {
         type: String,
-        enum: ['AC', 'Non-AC'],
+        enum: ['Yes', 'No'],
+        required: true
+    },
+    is_sos: {
+        type: String,
+        enum: ['Yes', 'No'],
+        required: true
+    },
+    is_first_aid_kid: {
+        type: String,
+        enum: ['Yes', 'No'],
         required: true
     },
     facilities: String,
-    is_sos: {
-        type: Boolean,
-        default: false
-    },
+    number_of_seats: Number,
     is_available: {
         type: Boolean,
         default: true

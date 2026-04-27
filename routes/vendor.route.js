@@ -16,6 +16,10 @@ router
     .route("/update-profile")
     .post(authMiddleware, vendorController.updateProfile);
 
+router
+    .route("/get-profile")
+    .get(authMiddleware, vendorController.getProfile);
+
 
 
 module.exports = router;

@@ -16,8 +16,8 @@ router
     .patch(authMiddleware, driverController.updateLocatoin)
 
 router
-    .route("/update-driver")
-    .post(authMiddleware, driverController.addDriver); // Add and Update Driver;
+    .route("/update-driver") // Add and Update Driver;
+    .post(authMiddleware, driverController.addDriver); 
 
 router
     .route("/delete/:id")

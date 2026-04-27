@@ -2,6 +2,7 @@ const vendorModel = require("../models/vendor.model.js");
 const vehicleModel = require("../models/vehicle.model.js");
 const ApiError = require("../utils/ApiError.js");
 const otpModel = require("../models/otp.model.js");
+const uploadImage = require("../utils/upload.js");
 
 
 
@@ -23,54 +24,83 @@ class VehicleController {
 
         // Check all fields available in each vehicle detail
         for (let vehicle of vehicleDetails) {
-            const { vehicle_number, vechicle_img, is_ac, facilities, is_sos } = vehicle;
+            const {
+                vehicle_number, vechicle_img, is_ac, facilities, is_sos,
+                is_first_aid_kid, number_of_seats
+            } = vehicle;
 
-            if ([vehicle_number, vechicle_img, is_ac, facilities, is_sos].some(field => !field || field === "")) {
+            if ([vehicle_number, vechicle_img, is_ac, facilities, is_sos,
+                is_first_aid_kid, number_of_seats
+
+            ].some(field => !field || field === "")) {
                 throw new ApiError(400, "All fields are required for each vehicle");
             }
 
-            break;
         }
 
         // Add vehicles to DB
-        const vehiclesToAdd = vehicleDetails.map(vehicle => {
-            if (vehicle._id) {
-                // Existing vehicle — update by _id
-                return {
-                    updateOne: {
-                        filter: { _id: vehicle._id, vendor_id },
-                        update: {
-                            $set: {
-                                vehicle_number: vehicle.vehicle_number,
-                                vechicle_img: vehicle.vechicle_img,
-                                is_ac: vehicle.is_ac,
-                                facilities: vehicle.facilities,
-                                is_sos: vehicle.is_sos
+        const vehiclesToAdd = await Promise.all(
+            vehicleDetails.map(async (vehicle) => {
+                // Upload image if a new base64 image is provided
+                let vehicleImgUrl = vehicle.vechicle_img; // default to existing URL
+
+                const isBase64 = typeof vehicle.vechicle_img === "string" &&
+                    vehicle.vechicle_img.startsWith("data:");
+
+                if (isBase64) {
+                    const upload = await uploadImage(vehicle.vechicle_img);
+                    if (!upload.success) {
+                        throw new ApiError(500, `Failed to upload image for vehicle ${vehicle.vehicle_number}`);
+                    }
+                    vehicleImgUrl = upload.fileName;
+                }
+
+                if (vehicle._id) {
+                    // Existing vehicle — update by _id
+                    return {
+                        updateOne: {
+                            filter: { _id: vehicle._id, vendor_id: userData.id },
+                            update: {
+                                $set: {
+                                    vehicle_number: vehicle.vehicle_number,
+                                    vechicle_img: vehicleImgUrl,
+                                    is_ac: vehicle.is_ac,
+                                    facilities: vehicle.facilities,
+                                    is_sos: vehicle.is_sos,
+                                    is_first_aid_kid: vehicle.is_first_aid_kid,
+                                    number_of_seats: vehicle.number_of_seats
+                                }
                             }
                         }
-                    }
-                };
-            } else {
-                // New vehicle — insert it
-                return {
-                    insertOne: {
-                        document: {
-                            vendor_id,
-                            vehicle_number: vehicle.vehicle_number,
-                            vechicle_img: vehicle.vechicle_img,
-                            is_ac: vehicle.is_ac,
-                            facilities: vehicle.facilities,
-                            isSOS: vehicle.isSOS
+                    };
+                } else {
+                    // New vehicle — insert it
+                    return {
+                        insertOne: {
+                            document: {
+                                vendor_id: userData.id,
+                                vehicle_number: vehicle.vehicle_number,
+                                vechicle_img: vehicleImgUrl,
+                                is_ac: vehicle.is_ac,
+                                is_sos: vehicle.is_sos,
+                                facilities: vehicle.facilities,
+                                is_first_aid_kid: vehicle.is_first_aid_kid,
+                                number_of_seats: vehicle.number_of_seats
+                            }
                         }
-                    }
-                };
-            }
-        });
+                    };
+                }
+            })
+        );
 
         const result = await vehicleModel.bulkWrite(vehiclesToAdd);
         if (!result || (result.insertedCount === 0 && result.modifiedCount === 0 && result.upsertedCount === 0)) {
             throw new ApiError(500, "Failed to process vehicles");
         }
+
+
+        // Update vendor profile
+        await vendorModel.updateOne({ _id: userData.id }, { $set: { profile_step: "2" } })
 
         return res.status(200).json({ msg: "Vehicles processed successfully" });
 

@@ -51,7 +51,7 @@ class Driver {
 
     }
 
-    
+
     static getDriverById = async (req, res) => {
         const driverId = req.params.id;
 
@@ -104,14 +104,16 @@ class Driver {
 
     // Add and Update Driver;
     static addDriver = async (req, res) => {
-        const { vendor_id, driverDetails } = req.body;
+        console.log("run...")
+        const { driverDetails } = req.body;
+        const userData = req.user; // from auth middleware
 
-        if (!vendor_id || driverDetails.length < 1) {
+        if (driverDetails.length < 1) {
             throw new ApiError(400, "Vendor ID and at least one driver detail are required");
         }
 
         // Check if vendor exists
-        const vendor = await vendorModel.findById(vendor_id);
+        const vendor = await vendorModel.findById(userData.id);
         if (!vendor) {
             throw new ApiError(404, "Vendor not found");
         }
@@ -119,47 +121,66 @@ class Driver {
         // Check all fields available in each driver detail
         for (let driver of driverDetails) {
             const { driver_name, driver_phone, driver_img } = driver;
+
             if ([driver_name, driver_phone, driver_img].some(field => !field || field === "")) {
                 throw new ApiError(400, "All fields are required for each driver");
             }
-            break;
         }
 
         // Add drivers to DB
-        const driversToAdd = driverDetails.map(driver => {
-            if (driver._id) {
-                // Existing driver — update by _id
-                return {
-                    updateOne: {
-                        filter: { _id: driver._id, vendor_id },
-                        update: {
-                            $set: {
-                                driver_name: driver.driver_name,
-                                driver_phone: driver.driver_phone,
-                                driver_img: driver.driver_img
+        const driversToAdd = await Promise.all(
+            driverDetails.map(async (driver) => {
+                // Upload image if a new base64 image is provided
+                let driverImgUrl = driver.driver_img;
+
+                const isBase64 = typeof driver.driver_img === "string" &&
+                    driver.driver_img.startsWith("data:");
+
+                if (isBase64) {
+                    const upload = await uploadImage(driver.driver_img);
+                    if (!upload.success) {
+                        throw new ApiError(500, `Failed to upload image for driver ${driver.driver_name}`);
+                    }
+                    driverImgUrl = upload.fileName;
+                }
+
+                if (driver._id) {
+                    // Existing driver — update by _id
+                    return {
+                        updateOne: {
+                            filter: { _id: driver._id, vendor_id: userData.id },
+                            update: {
+                                $set: {
+                                    driver_name: driver.driver_name,
+                                    driver_phone: driver.driver_phone,
+                                    driver_img: driverImgUrl
+                                }
                             }
                         }
-                    }
-                };
-            } else {
-                // New driver — insert it
-                return {
-                    insertOne: {
-                        document: {
-                            vendor_id,
-                            driver_name: driver.driver_name,
-                            driver_phone: driver.driver_phone,
-                            driver_img: driver.driver_img
+                    };
+                } else {
+                    // New driver — insert it
+                    return {
+                        insertOne: {
+                            document: {
+                                vendor_id: userData.id,
+                                driver_name: driver.driver_name,
+                                driver_phone: driver.driver_phone,
+                                driver_img: driverImgUrl
+                            }
                         }
-                    }
-                };
-            }
-        });
+                    };
+                }
+            })
+        );
 
         const result = await driverModel.bulkWrite(driversToAdd);
         if (!result || (result.insertedCount === 0 && result.modifiedCount === 0 && result.upsertedCount === 0)) {
             throw new ApiError(500, "Failed to process drivers");
         }
+
+        // Update vendor profile
+        await vendorModel.updateOne({ _id: userData.id }, { $set: { profile_step: "3",  profile_completed: true } })
 
         return res.status(200).json({ msg: "Drivers processed successfully" });
 
@@ -177,6 +198,7 @@ class Driver {
         }
 
         const drivers = await driverModel.find({ vendor_id: userData.id });
+        console.log(drivers);
         return res.status(200).json({ data: drivers });
 
     }
